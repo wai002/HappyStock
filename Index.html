@@ -60,41 +60,46 @@
     <div id="widget-container"></div>
   </div>
 
-  <script type="text/javascript">
+  <!-- 只載入一次 TradingView TV.js -->
+  <script src="https://s3.tradingview.com/tv.js"></script>
+  <script>
+    function renderTradingView(symbol) {
+      new TradingView.widget({
+        "container_id": "widget-container",
+        "width": "100%",
+        "height": 600,
+        "symbol": symbol,
+        "interval": "15",
+        "timezone": "Asia/Taipei",
+        "theme": "light",
+        "style": "1",
+        "locale": "zh_TW",
+        "toolbar_bg": "#f1f3f6",
+        "enable_publishing": false,
+        "hide_top_toolbar": false,
+        "allow_symbol_change": true,
+      });
+    }
+
     function loadChart() {
       const symbol = document.getElementById("symbol").value.trim();
-      if (!symbol) {
-        alert("請輸入股票代碼");
-        return;
+      if (!symbol) return alert("請輸入股票代碼");
+
+      // 清除舊圖表
+      document.getElementById("widget-container").innerHTML = "";
+
+      // 確保 TradingView 可用後再呼叫
+      if (typeof TradingView !== "undefined") {
+        renderTradingView(symbol);
+      } else {
+        alert("圖表載入失敗，請稍後再試");
       }
-
-      const widgetContainer = document.getElementById("widget-container");
-      widgetContainer.innerHTML = ""; // 清除舊圖表
-
-      const script = document.createElement("script");
-      script.src = "https://s3.tradingview.com/tv.js";
-      script.onload = () => {
-        new TradingView.widget({
-          "container_id": "widget-container",
-          "width": "100%",
-          "height": 600,
-          "symbol": symbol,
-          "interval": "15",
-          "timezone": "Asia/Taipei",
-          "theme": "light",
-          "style": "1",
-          "locale": "zh_TW",
-          "toolbar_bg": "#f1f3f6",
-          "enable_publishing": false,
-          "hide_top_toolbar": false,
-          "allow_symbol_change": true,
-        });
-      };
-      document.body.appendChild(script);
     }
 
     // 預設載入一次
-    window.addEventListener("DOMContentLoaded", loadChart);
+    window.addEventListener("DOMContentLoaded", () => {
+      renderTradingView("INDEX:HSTECH");
+    });
   </script>
 </body>
 </html>
