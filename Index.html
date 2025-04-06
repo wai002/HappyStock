@@ -38,16 +38,8 @@
       border: none;
       cursor: pointer;
     }
-    iframe {
-      width: 100%;
-      height: 600px;
-      border: none;
+    #widget-container {
       margin-top: 2rem;
-    }
-    @media (max-width: 600px) {
-      iframe {
-        height: 400px;
-      }
     }
   </style>
 </head>
@@ -57,26 +49,52 @@
   </header>
   <div class="container">
     <p>
-      輸入股票代碼（例如：<code>INDEX:HSTECH</code>、<code>HKEX:700</code>、<code>NASDAQ:AAPL</code>）
+      輸入股票代碼（例如：
+      <code>INDEX:HSTECH</code>、
+      <code>HKEX:700</code>、
+      <code>NASDAQ:AAPL</code>）
     </p>
     <input type="text" id="symbol" placeholder="輸入 TradingView 代碼" value="INDEX:HSTECH" />
     <button onclick="loadChart()">載入圖表</button>
 
-    <iframe
-      id="tv-widget"
-      src="https://www.tradingview.com/embed-widget/advanced-chart/?symbol=INDEX%3AHSTECH&interval=15&theme=light&style=1&timezone=Asia%2FTaipei&hide_side_toolbar=false&save_image=true&studies=[]&locale=zh_TW"
-      allowfullscreen>
-    </iframe>
+    <div id="widget-container"></div>
   </div>
 
-  <script>
+  <script type="text/javascript">
     function loadChart() {
       const symbol = document.getElementById("symbol").value.trim();
-      if (!symbol) return alert("請輸入股票代碼");
-      const encodedSymbol = encodeURIComponent(symbol);
-      const chartSrc = `https://www.tradingview.com/embed-widget/advanced-chart/?symbol=${encodedSymbol}&interval=15&theme=light&style=1&timezone=Asia%2FTaipei&hide_side_toolbar=false&save_image=true&studies=[]&locale=zh_TW`;
-      document.getElementById("tv-widget").src = chartSrc;
+      if (!symbol) {
+        alert("請輸入股票代碼");
+        return;
+      }
+
+      const widgetContainer = document.getElementById("widget-container");
+      widgetContainer.innerHTML = ""; // 清除舊圖表
+
+      const script = document.createElement("script");
+      script.src = "https://s3.tradingview.com/tv.js";
+      script.onload = () => {
+        new TradingView.widget({
+          "container_id": "widget-container",
+          "width": "100%",
+          "height": 600,
+          "symbol": symbol,
+          "interval": "15",
+          "timezone": "Asia/Taipei",
+          "theme": "light",
+          "style": "1",
+          "locale": "zh_TW",
+          "toolbar_bg": "#f1f3f6",
+          "enable_publishing": false,
+          "hide_top_toolbar": false,
+          "allow_symbol_change": true,
+        });
+      };
+      document.body.appendChild(script);
     }
+
+    // 預設載入一次
+    window.addEventListener("DOMContentLoaded", loadChart);
   </script>
 </body>
 </html>
